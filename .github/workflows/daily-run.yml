@@ -1,0 +1,37 @@
+name: 每日自动执行广告脚本
+
+on:
+  # 定时执行 - 每天北京时间上午 9:00 (UTC 1:00)
+  schedule:
+    - cron: "0 1 * * *" # UTC 1:00 = 北京时间 9:00
+
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  run-adv-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 执行广告脚本
+        env:
+          GMAIL: ${{ secrets.GMAIL }}
+          APP_PASS: ${{ secrets.APP_PASS }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          RECIPIENT: ${{ secrets.RECIPIENT }}
+        run: node auto-play-adv.js
+
+      - name: 显示执行结果
+        if: always()
+        run: echo "脚本执行完成"
